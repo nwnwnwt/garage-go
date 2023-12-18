@@ -1,4 +1,7 @@
-# garage-go
+screnshot of project:
+#![Screenshot (477)](https://github.com/nwnwnwt/garage-go/assets/76642739/aa85b85c-a21e-4b96-8ff5-ffc6f1a45d3a)
+ 
+ garage-go
 run the Golang application with the following steps:
 
 Open a terminal and navigate to the directory where your Golang code is located.
