@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Garage Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Car Garage Management</h1>
+
+    <form id="addCarForm">
+        <label for="brand">Brand:</label>
+        <input type="text" id="brand" name="brand" required>
+        
+        <label for="model">Model:</label>
+        <input type="text" id="model" name="model" required>
+
+        <button type="button" onclick="addCar()">Add Car</button>
+    </form>
+
+    <table id="carsTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Brand</th>
+                <th>Model</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetchCars();
+        });
+
+        function fetchCars() {
+            fetch('/cars')
+                .then(response => response.json())
+                .then(data => {
+                    const carsTableBody = document.querySelector('#carsTable tbody');
+                    carsTableBody.innerHTML = '';
+
+                    data.cars.forEach(car => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${car._id}</td>
+                            <td>${car.brand}</td>
+                            <td>${car.model}</td>
+                            <td>${car.status}</td>
+                            <td>
+                                <button onclick="updateCarStatus('${car._id}', 'Under Repair')">Under Repair</button>
+                                <button onclick="updateCarStatus('${car._id}', 'Completed')">Completed</button>
+                                <button onclick="deleteCar('${car._id}')">Delete</button>
+                            </td>
+                        `;
+                        carsTableBody.appendChild(row);
+                    });
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function addCar() {
+            const brand = document.getElementById('brand').value;
+            const model = document.getElementById('model').value;
+
+            fetch('/cars', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ brand, model }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                fetchCars(); // Refresh the car list after adding
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+
+        function updateCarStatus(carId, newStatus) {
+            fetch(`/cars/${carId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ status: newStatus }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                fetchCars(); // Refresh the car list after updating status
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+
+        function deleteCar(carId) {
+            fetch(`/cars/${carId}`, {
+                method: 'DELETE',
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                fetchCars(); // Refresh the car list after deleting
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
